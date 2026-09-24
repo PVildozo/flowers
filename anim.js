@@ -2,71 +2,92 @@
 var audio = document.querySelector("audio");
 var lyrics = document.querySelector("#lyrics");
 
-// Array de objetos que contiene cada línea y su tiempo de aparición en segundos
+// Array corregido, ordenado y con tiempos precisos en segundos
 var lyricsData = [
-  { text: "At the time", time: 15 },
-  { text: "The whisper of birds", time: 18 },
-  { text: "Lonely before the sun cried", time: 27 },
-  { text: "Fell from the sky", time: 32 },
-  { text: "Like water drops", time: 33 },
-  { text: "Where I'm now? I don't know why", time: 41 },
-  { text: "Nice butterflies in my hands", time: 47 },
-  { text: "Too much light for twilight", time: 54 },
-  { text: "In the mood for the flowers love", time: 59 },
-  { text: "That vision", time: 67 },
-  { text: "Really strong, blew my mind", time: 72 },
-  { text: "Silence Let me see what it was", time: 78 },
-  { text: "I only want to live in clouds", time: 83 },
-  { text: "Where I'm now? I don't know why", time: 91 },
-  { text: "Nice butterflies in my hands", time: 97 },
-  { text: "Too much light for twilight", time: 104 },
-  { text: "In the mood for the flowers love", time: 108 },
-  { text: "At the time", time: 144 },
-  { text: "The whisper of birds", time: 148 },
-  { text: "Lonely before the sun cried", time: 153 },
-  { text: "Fell from the sky", time: 158 },
-  { text: "Like water drops", time: 164 },
-  { text: "Where I'm now? I don't know why", time: 169 },
-  { text: "Nice butterflies in my hands", time: 176 },
-  { text: "Too much light for twilight", time: 183 },
-  { text: "In the mood for the flowers", time: 188 },
-  { text: "Love.", time: 140 },
+  { text: "Te vi llegar del brazo de un amigo", time: 36 },
+  { text: "Cuando entraste al bar y te caíste al piso", time: 40 },
+  { text: "Me tiraste el pingüino, me tiraste el sifón", time: 44 },
+  { text: "Estallaron los vidrios de mi corazón", time: 48 },
+  { text: "Te vi bailar, brillando con tu ausencia", time: 53 },
+  { text: "Sin sentir piedad, chocando con las mesas", time: 56 },
+  { text: "Te burlaste de todos, te reíste de mí", time: 61 },
+  { text: "Tus amigos se escaparon de vos", time: 66 },
+  
+  // Primer Estribillo
+  { text: "Y a mí me volvió loco tu forma de ser", time: 69 },
+  { text: "A mí me volvió loco tu forma de ser", time: 74 },
+  { text: "Tu egoísmo y tu soledad", time: 78 },
+  { text: "Son estrellas en la noche de la mediocridad", time: 83 },
+  { text: "Me vuelve loco tu forma de ser", time: 86 },
+  { text: "A mí me volvió loco tu forma de ser", time: 91 },
+  { text: "Tu egoísmo y tu soledad", time: 96 },
+  { text: "Son joyas en el barro de la mediocridad", time: 100 },
+  
+  // Tercera Estrofa
+  { text: "Viniste a mí, tomaste de mi copa", time: 138 },
+  { text: "Me sonreíste así, nadando en tu demencia", time: 142 },
+  { text: "No sabía que hacer, te traté de besar", time: 146 },
+  { text: "Me pegaste un sopapo y te pusiste a llorar", time: 151 },
+  
+  // Segundo Estribillo / Cierre
+  { text: "Me vuelve loco tu forma de ser", time: 155 },
+  { text: "A mí me volvió loco tu forma de ser", time: 158 },
+  { text: "Tu egoísmo y tu soledad", time: 163 },
+  { text: "Son estrellas en la noche de la mediocridad", time: 168 },
+  { text: "Me vuelve loco tu forma de ser", time: 172 },
+  { text: "A mí me volvió loco tu forma de ser", time: 175 },
+  { text: "Tu egoísmo y tu soledad", time: 180 },
+  { text: "Son joyas en el barro de la mediocridad", time: 185 },
+  { text: "Y a mí me volvió loco tu forma de ser", time: 221 },
+  { text: "Me vuelve loco tu forma de ser", time: 226 },
+  { text: "Tu egoísmo y tu soledad", time: 230 },
+  { text: "Son estrellas en la noche de la mediocridad", time: 235 },
+  { text: "Me vuelve loco tu forma de ser", time: 238 },
+  { text: "A mí me volvió loco tu forma de ser", time: 242 },
+  { text: "Tu egoísmo y tu soledad", time: 247 },
+  { text: "Son joyas en el barro de la mediocridad", time: 251 },
 ];
 
 // Animar las letras
 function updateLyrics() {
-  var time = Math.floor(audio.currentTime);
+  // Usar currentTime con decimales ayuda a que la sincronización sea más fluida
+  var time = audio.currentTime; 
+  
   var currentLine = lyricsData.find(
-    (line) => time >= line.time && time < line.time + 6
+    (line, index) => {
+      var nextLine = lyricsData[index + 1];
+      // Si hay una siguiente línea, la actual dura hasta que empiece la siguiente. 
+      // Si es la última, le damos un margen de 5 segundos.
+      var endTime = nextLine ? nextLine.time : line.time + 5;
+      return time >= line.time && time < endTime;
+    }
   );
 
   if (currentLine) {
-    // Calcula la opacidad basada en el tiempo en la línea actual
-    var fadeInDuration = 0.1; // Duración del efecto de aparición en segundos
+    var fadeInDuration = 0.3; 
     var opacity = Math.min(1, (time - currentLine.time) / fadeInDuration);
 
-    // Aplica el efecto de aparición
     lyrics.style.opacity = opacity;
     lyrics.innerHTML = currentLine.text;
   } else {
-    // Restablece la opacidad y el contenido si no hay una línea actual
     lyrics.style.opacity = 0;
     lyrics.innerHTML = "";
   }
 }
 
-setInterval(updateLyrics, 1000);
+// Actualizar cada 100 milisegundos (0.1s) en vez de cada 1000ms (1s) 
+// para que la transición de opacidad y aparición responda al instante.
+setInterval(updateLyrics, 100);
 
-//funcion titulo
 // Función para ocultar el título después de 216 segundos
 function ocultarTitulo() {
   var titulo = document.querySelector(".titulo");
-  titulo.style.animation =
-    "fadeOut 3s ease-in-out forwards"; /* Duración y función de temporización de la desaparición */
-  setTimeout(function () {
-    titulo.style.display = "none";
-  }, 3000); // Espera 3 segundos antes de ocultar completamente
+  if (titulo) {
+    titulo.style.animation = "fadeOut 3s ease-in-out forwards";
+    setTimeout(function () {
+      titulo.style.display = "none";
+    }, 3000);
+  }
 }
 
-// Llama a la función después de 216 segundos (216,000 milisegundos)
 setTimeout(ocultarTitulo, 216000);
